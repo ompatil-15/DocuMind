@@ -115,16 +115,12 @@ def create_chain(db):
         output_messages_key="answer",
     )
     
-    print("Chain created")
-    
     return conversational_rag_chain
 
 def main():
     
-    flag = 1
     if 'init' not in st.session_state:
         st.session_state['init'] = False
-    
     
     st.set_page_config(
         page_title="DocuMind: Your Lightning-Fast⚡ Document📄 Assistant🤖",
@@ -148,12 +144,11 @@ def main():
 
         mode = st.sidebar.selectbox('Choose Pre-Trained AI', modes, key='st.session_state.mode')
         
-        
         st.session_state.mode = mode
         
         print("Previous Mode - ", st.session_state.previous_mode)
         if st.session_state.mode == "Regular":
-            flag = 0
+            # flag = 0
             print("Mode - Regular")
             vstore = "vector_db/faiss_index"
             welcome_message = "Upload a document to get started and ask any questions related to its content!"
@@ -162,7 +157,7 @@ def main():
                     st.session_state.pop('messages', None)
                 
         if st.session_state.mode == "Plant Expert":
-            flag = 0
+            # flag = 0
             print("Mode - Plant expert")
             vstore = "vector_db/faiss_index_1"
             welcome_message = "Ask me questions about permaculture!"
@@ -171,7 +166,7 @@ def main():
                 st.session_state.pop('messages', None)          
 
         if st.session_state.mode == "Legal Assistant":
-            flag = 0
+            # flag = 0
             print("Mode - Legal assistant")
             vstore = "vector_db/faiss_index_2"
             welcome_message = "Ask me about the legal system of India!"
@@ -180,20 +175,22 @@ def main():
                 st.session_state.pop('messages', None)
             
         if st.session_state.mode == "Finance Master":
-            flag = 0
+            # flag = 0
             print("Mode - Finance master")
             vstore = "vector_db/faiss_index_3"
             welcome_message = "Ask me anything about the world of finance!" 
             if st.session_state.previous_mode != st.session_state.mode:
                 st.session_state.init = False
                 st.session_state.pop('messages', None)
-          
+        
+        
         if st.session_state.mode == modes[0]:       
             st.markdown("### Upload Document")
             uploaded_files = st.file_uploader("Choose a document", type=["pdf", "docx", "txt"], accept_multiple_files=True)
             state = st.button("Submit")
-            if state or st.session_state.previous_mode != st.session_state.mode:
-                st.session_state.previous_mode = st.session_state.mode
+            print("Button - ", state)
+            if state:
+                # st.session_state.previous_mode = st.session_state.mode
                 print("Processing")
                 with st.spinner("Processing..."):
                     raw_text = get_pdf_text(uploaded_files)
@@ -203,12 +200,8 @@ def main():
                     document_names.extend([file.name for file in uploaded_files])
                     save_document_info(document_names)
         
-        # if current_mode != mode:
-        #     print("Mode Changed")
-        #     st.session_state.previous_mode = mode
-        #     st.experimental_rerun()
-        print(flag, st.session_state.init)
-        if flag or not st.session_state.init or state:
+        print(st.session_state.init)
+        if not st.session_state.init:
             st.session_state.init = True
             try:
                 st.session_state.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", batch_size=90)
