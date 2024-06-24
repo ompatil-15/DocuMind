@@ -34,7 +34,7 @@ def get_text_chunks(text):
     return chunks
 
 def get_vector_store(text_chunks, vs):
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", batch_size=95)
     db = FAISS.from_texts(text_chunks, embedding=embeddings)
     db.save_local(vs)
     print(vs)
@@ -195,15 +195,17 @@ def main():
                     raw_text = get_pdf_text(uploaded_files)
                     text_chunks = get_text_chunks(raw_text)
                     st.session_state.db = get_vector_store(text_chunks, vstore)
-                    st.success("Done")                
                     document_names.extend([file.name for file in uploaded_files])
                     save_document_info(document_names)
+                    st.session_state.db = FAISS.load_local(vstore, st.session_state.embeddings, allow_dangerous_deserialization=True)
+                    st.session_state.chain = create_chain(st.session_state.db)
+                    st.success("Done")                
         
         print(st.session_state.init)
         if not st.session_state.init:
             st.session_state.init = True
             try:
-                st.session_state.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", batch_size=90)
+                st.session_state.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", batch_size=95)
                 print("Embeddings model loaded.")
             except Exception as e:
                 st.error("An error occurred while creating embeddings.")
