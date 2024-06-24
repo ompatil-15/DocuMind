@@ -22,10 +22,7 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def get_pdf_text(pdf_docs):
     text = "AI"
-    docs = load_document_info()
-    
     for pdf in pdf_docs:
-        if pdf not in docs:
             pdf_reader = PdfReader(pdf)
             for page in pdf_reader.pages:
                 text += page.extract_text()
@@ -186,13 +183,15 @@ def main():
         
         if st.session_state.mode == modes[0]:       
             st.markdown("### Upload Document")
-            uploaded_files = st.file_uploader("Choose a document", type=["pdf", "docx", "txt"], accept_multiple_files=True)
+            uploaded_files = st.file_uploader("Choose a document", type=["pdf"], accept_multiple_files=True)
             state = st.button("Submit")
             print("Button - ", state)
             if state:
                 # st.session_state.previous_mode = st.session_state.mode
                 print("Processing")
                 with st.spinner("Processing..."):
+                    clear_document_info()
+                    document_names.clear()
                     raw_text = get_pdf_text(uploaded_files)
                     text_chunks = get_text_chunks(raw_text)
                     st.session_state.db = get_vector_store(text_chunks, vstore)
