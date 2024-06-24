@@ -208,7 +208,7 @@ def main():
         #     st.session_state.previous_mode = mode
         #     st.experimental_rerun()
         print(flag, st.session_state.init)
-        if flag or not st.session_state.init:
+        if flag or not st.session_state.init or state:
             st.session_state.init = True
             try:
                 st.session_state.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", batch_size=90)
